@@ -15,7 +15,7 @@ my.theme <- theme_classic() +
         legend.title=element_text(size=12),
         plot.title=element_text(size=12, hjust = 0.5))
 
-setwd("/Users/ellyknight/Downloads")
+root <- "G:/.shortcut-targets-by-id/14H5BXdBP8k2jv4jgUjO5QTqHvOmxMSBn/IndividualID/PerspectivesPaper/Figures"
 
 #Figure 1. Study design attributes####
 
@@ -30,7 +30,7 @@ plot.method <- ggplot(method) +
   scale_fill_viridis_c(name="Difficulty of\nindividual\nidentification", breaks=c(0, 1, 2), labels=c("Low", "Medium", "High")) +
   coord_cartesian(xlim = c(-0.25, 0.75), ylim=c(-0.25, 0.75), clip = 'off') +
   scale_x_continuous(breaks = c(0, 0.5), labels = c("Targeted", "Passive")) +
-  scale_y_continuous(breaks = c(0, 0.5), labels = c("Open set", "Closed set")) +
+  scale_y_continuous(breaks = c(0, 0.5), labels = c("Closed set", "Open set")) +
   my.theme +
   theme(legend.text = element_text(size=10),
         axis.text.y = element_text(angle = 90, hjust = 0.5, size = 10, margin = margin(0,-12,0,0)),
@@ -45,7 +45,7 @@ plot.method <- ggplot(method) +
   ggtitle("A. Method attributes")
 plot.method
 
-#ggsave(plot.method, filename="Figure1AMethodPlot.jpeg", width=7, height=5.85, units="in", dpi = 300, device="jpeg")
+#ggsave(plot.method, filename=file.path(root, "Figure1AMethodPlot.jpeg"), width=7, height=5.85, units="in", dpi = 300, device="jpeg")
 
 #1B. Extent attributes----
 
@@ -75,7 +75,7 @@ plot.base <- ggplot() +
   ggtitle("B. Extent attributes")
 plot.base
 
-#ggsave(plot.base, width = 7, height = 5.85, units="in", filename="Figure1BBasePlot.jpeg", dpi=300)
+ggsave(plot.base, width = 7, height = 5.85, units="in", filename=file.path(root, "Figure1BBasePlot.jpeg"), dpi=300)
 
 #Figure 1A & 1B together----
 plot.legend <- ggplot() +
@@ -92,7 +92,7 @@ ggsave(grid.arrange(plot.base, plot.method, leg,
                     heights = c(4,0.4),
                     layout_matrix = rbind(c(2,1),
                                           c(3,1))),
-       filename="Figure1StudyDesignAttributes.jpeg", width = 10, height = 5.4)
+       filename=file.path(root, "Figure1StudyDesignAttributes.jpeg"), width = 10, height = 5.4)
 
 
 #Figure 2. Ecological attributes####
