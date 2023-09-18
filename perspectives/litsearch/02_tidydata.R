@@ -10,11 +10,15 @@ root <- "G:/.shortcut-targets-by-id/14H5BXdBP8k2jv4jgUjO5QTqHvOmxMSBn/Individual
 raw <- read_sheet(ss="1J9SN-VR6WF3GVycpxd5RY6gXN3gIvmo7AJutYRDOJcU") %>% 
   data.frame()
 
-colnames(raw)
+# dat <- raw %>% 
+#   unnest(cols=colnames(raw))
+
+#TO DO: FIX DF ISSUE####
 
 #3. Check for incompleted rows----
 todo <- raw %>% 
-  mutate(todo = case_when(is.na(Relevant) ~ "Evaluate",
+  mutate(todo = case_when(is.na(Relevant) ~ "Eval
+dat <- raw %>% uate",
                           (is.na(Classification.Method) & Relevant=="Yes") ~ "AllDetails",
                           (!is.na(Classification.Method) & is.na(Model.Type) & !Flag %in% c("Remove - insufficient methods detail ", "Needs checked (no access)") & Relevant!="Review") ~ "ModelDetails")) %>% 
   dplyr::filter(!is.na(todo))
@@ -26,10 +30,24 @@ table(raw$Relevant)
 # Duplicate        No    Review       Yes 
 # 6      3833        50       660
 
-#4. Filter to relevant and reviews----
+#4. Filter to relevant and reviews, wrangle----
+#change Tess & Elly to just Elly
+#Tidy application
 review <- raw %>% dplyr::filter(Relevant=="Review")
 use <- raw %>% dplyr::filter(Relevant=="Yes",
-                             !Flag %in% c("Remove - insufficient methods detail ", "Needs checked (no access)"))
+                             !Flag %in% c("Remove - insufficient methods detail ", "Needs checked (no access)")) %>% 
+  mutate(observer = ifelse(observer=="Tessa & Elly", "Elly", observer),
+         Application = case_when(Application=="Communication behaviour" ~ "Behaviour",
+                                 Application=="Demographic parameters (recruitment, immigration, emigration, survival)" ~ "Demography",
+                                 Application=="Density estimation" ~ "Density",
+                                 Application=="IID per se" ~ "AIID",
+                                 Application=="Individual state" ~ "State", 
+                                 Application=="Migration Tracking" ~ "Movement",
+                                 Application=="Other (add 'notes')" ~ "Other",
+                                 Application=="Population census" ~ "Census",
+                                 Application=="Seasonal movement" ~ "Movement"))
+
+write.csv(use, file.path(root, "Results", "PapersToAnalyze.csv"), row.names=FALSE)
 
 #5. Export model type column values for tidying----
 mods.raw <- data.frame('Model Type' = sort(unique(use$Model.Type)))
@@ -83,8 +101,10 @@ ggplot(use.n) +
 #11. Explore recording method----
 table(use$Recording.Method)
 
-#12. Explore application vs user----
-table(use$Application, use$observer)
+#12. Tidy application----
+table(use$Application)
 
 #13. Explore taxa----
 table(use$Taxa)
+
+#14. Test for differences in observer----
