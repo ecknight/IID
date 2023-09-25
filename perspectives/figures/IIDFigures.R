@@ -94,24 +94,36 @@ ggsave(grid.arrange(plot.base, plot.method, leg,
                                           c(3,1))),
        filename=file.path(root, "Figures", "Figure1StudyDesignAttributes.jpeg"), width = 10, height = 5.4)
 
+#Figure 2 - Sample size----
+plot.n <- ggplot(use.n %>% 
+         dplyr::filter(!is.na(Taxa))) +
+  geom_histogram(aes(x=Individuals, fill=Taxa)) +
+  facet_grid(Difference.found~Taxa, scales="free") +
+  scale_fill_viridis_d(option="A") +
+  my.theme +
+  theme(legend.position = "none")
+
+ggsave(plot.n, filename=file.path(root, "Figures", "Figure2SampleSizeResults.jpeg"), width=10, height=4)
+
+
 #Figure 2 - Existing approaches----
 
-#use <- read.csv(file.path(root, "LitSearch", "Results", "PapersToAnalyze.csv"))
+use.mods <- read.csv(file.path(root, "Results", "AIIDPapersCleaned.csv"))
 
-approach <- use %>% 
-  group_by(Recording.Method, Classification.Method, Application) %>% 
+approach <- use.mods %>% 
+  group_by(RecordingMethod, ClassificationMethod, Application) %>% 
   summarize(n=n()) %>% 
   ungroup() %>% 
-  dplyr::filter(!is.na(Recording.Method),
+  dplyr::filter(!is.na(RecordingMethod),
                 !is.na(Application),
-                !is.na(Classification.Method),
-                Classification.Method!="Difference test") %>% 
+                !is.na(ClassificationMethod),
+                ClassificationMethod!="Difference test") %>% 
   pivot_wider(names_from="Application", values_from="n", values_fill=0) %>% 
   pivot_longer(AIID:State, values_to="n", names_to="Application")
   
 plot.passiveclosed <- ggplot(approach %>% 
-                  dplyr::filter(Recording.Method=="Passive",
-                                Classification.Method=="Closed set")) +
+                  dplyr::filter(RecordingMethod=="Passive",
+                                ClassificationMethod=="Closed set")) +
   geom_col(aes(x=n, y=Application, fill=Application)) +
   scale_fill_grey() +
   my.theme +
@@ -122,14 +134,15 @@ plot.passiveclosed <- ggplot(approach %>%
         axis.title.y = element_blank(),
         strip.background = element_blank(),
         strip.text = element_blank(),
-        legend.position="none",
-        panel.background = element_rect(rgb(1,1,1,alpha=0.65)))
+        plot.background = element_rect(fill=rgb(1,1,1, alpha=0.3), colour=NA),
+        panel.background = element_rect(fill=NA),
+        legend.position="none")
 
-ggsave(plot.passiveclosed, filename=file.path(root, "Figures", "Figure3StudyDesignResults_PassiveClosed.jpeg"), width=4, height=4)
+ggsave(plot.passiveclosed, filename=file.path(root, "Figures", "Figure3StudyDesignResults_PassiveClosed.tiff"), device="tiff", width=4, height=4)
 
 plot.passiveopen <- ggplot(approach %>% 
-                  dplyr::filter(Recording.Method=="Passive",
-                                Classification.Method=="Open set")) +
+                  dplyr::filter(RecordingMethod=="Passive",
+                                ClassificationMethod=="Open set")) +
   geom_col(aes(x=n, y=Application, fill=Application)) +
   scale_fill_grey() +
   my.theme +
@@ -140,14 +153,15 @@ plot.passiveopen <- ggplot(approach %>%
         axis.title.y = element_blank(),
         strip.background = element_blank(),
         strip.text = element_blank(),
-        legend.position="none",
-        panel.background = element_rect(rgb(1,1,1,alpha=0.65)))
+        plot.background = element_rect(fill=rgb(1,1,1, alpha=0.3), colour=NA),
+        panel.background = element_rect(fill=NA),
+        legend.position="none")
 
-ggsave(plot.passiveopen, filename=file.path(root, "Figures", "Figure3StudyDesignResults_PassiveOpen.jpeg"), width=4, height=4)
+ggsave(plot.passiveopen, filename=file.path(root, "Figures", "Figure3StudyDesignResults_PassiveOpen.tiff"), device="tiff", width=4, height=4)
 
 plot.targetedclosed <- ggplot(approach %>% 
-                              dplyr::filter(Recording.Method=="Targeted",
-                                            Classification.Method=="Closed set")) +
+                              dplyr::filter(RecordingMethod=="Targeted",
+                                            ClassificationMethod=="Closed set")) +
   geom_col(aes(x=n, y=Application, fill=Application)) +
   scale_fill_grey() +
   my.theme +
@@ -158,13 +172,15 @@ plot.targetedclosed <- ggplot(approach %>%
         axis.title.y = element_blank(),
         strip.background = element_blank(),
         strip.text = element_blank(),
+        plot.background = element_rect(fill=rgb(1,1,1, alpha=0.3), colour=NA),
+        panel.background = element_rect(fill=NA),
         legend.position="none")
 
-ggsave(plot.targetedclosed, filename=file.path(root, "Figures", "Figure3StudyDesignResults_TargetedClosed.jpeg"), width=4, height=4)
+ggsave(plot.targetedclosed, filename=file.path(root, "Figures", "Figure3StudyDesignResults_TargetedClosed.tiff"), device="tiff", width=4, height=4)
 
 plot.targetedopen <- ggplot(approach %>% 
-                                dplyr::filter(Recording.Method=="Targeted",
-                                              Classification.Method=="Open set")) +
+                                dplyr::filter(RecordingMethod=="Targeted",
+                                              ClassificationMethod=="Open set")) +
   geom_col(aes(x=n, y=Application, fill=Application)) +
   scale_fill_grey() +
   my.theme +
@@ -175,9 +191,11 @@ plot.targetedopen <- ggplot(approach %>%
         axis.title.y = element_blank(),
         strip.background = element_blank(),
         strip.text = element_blank(),
+        plot.background = element_rect(fill=rgb(1,1,1, alpha=0.3), colour=NA),
+        panel.background = element_rect(fill=NA),
         legend.position="none")
 
-ggsave(plot.targetedopen, filename=file.path(root, "Figures", "Figure3StudyDesignResults_TargetedOpen.jpeg"), width=4, height=4)
+ggsave(plot.targetedopen, filename=file.path(root, "Figures", "Figure3StudyDesignResults_TargetedOpen.tiff"), width=4, height=4, device="tiff")
 
 
 plot.legend <- plot.targetedclosed <- ggplot(approach %>% 
