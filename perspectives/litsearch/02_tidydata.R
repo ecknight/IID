@@ -25,7 +25,7 @@ raw <- read_sheet(ss="1J9SN-VR6WF3GVycpxd5RY6gXN3gIvmo7AJutYRDOJcU",
 todo <- raw %>% 
   mutate(todo = case_when(is.na(Relevant) ~ "Evaluate",
                           (is.na(Classification.Method) & Relevant=="Yes") ~ "AllDetails",
-                          (!is.na(Classification.Method) & is.na(Model.Type) & !Flag %in% c("Remove - insufficient methods detail ", "Needs checked (no access)") & Relevant!="Review") ~ "ModelDetails")) %>% 
+                          (!is.na(Classification.Method) & is.na(Model.Type) & !Flag %in% c("Remove - insufficient methods detail ", "Needs checked (no access)", "Not from original research") & Relevant!="Review") ~ "ModelDetails")) %>% 
   dplyr::filter(!is.na(todo),
                 Flag!="Needs checked (no access)",
                 Flag!="Remove - insufficient methods detail",
