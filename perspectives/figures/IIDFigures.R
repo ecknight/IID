@@ -202,3 +202,6 @@ plot.legend <- plot.targetedclosed <- ggplot(approach %>%
         legend.position="right")
 
 ggsave(plot.legend, filename=file.path(root, "Figures", "Figure3StudyDesignResults_Legend.jpeg"), width=4, height=4)
+
+#Figure 3 - Temporal effects-----
+
