@@ -94,18 +94,6 @@ ggsave(grid.arrange(plot.base, plot.method, leg,
                                           c(3,1))),
        filename=file.path(root, "Figures", "Figure1StudyDesignAttributes.jpeg"), width = 10, height = 5.4)
 
-#Figure 2 - Sample size----
-plot.n <- ggplot(use.n %>% 
-         dplyr::filter(!is.na(Taxa))) +
-  geom_histogram(aes(x=Individuals, fill=Taxa)) +
-  facet_grid(Difference.found~Taxa, scales="free") +
-  scale_fill_viridis_d(option="A") +
-  my.theme +
-  theme(legend.position = "none")
-
-ggsave(plot.n, filename=file.path(root, "Figures", "Figure2SampleSizeResults.jpeg"), width=10, height=4)
-
-
 #Figure 2 - Existing approaches----
 
 use.mods <- read.csv(file.path(root, "Results", "AIIDPapersCleaned.csv"))
