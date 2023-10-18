@@ -54,7 +54,7 @@ base <- expand.grid(Time = seq(0, 1, 0.01),
 
 plot.base <- ggplot() +
   geom_raster(data=base, aes(x=Time, y=Space, fill = Score)) +
-  scale_fill_viridis_c(name="Difficulty of acoustic      \nindividual identification     ", breaks=c(0, 1), labels=c("Easy", "Hard")) +
+  scale_fill_viridis_c(name="Difficulty of acoustic      \nindividual identification     ", breaks=c(0, 2), labels=c("Easy", "Hard")) +
   scale_x_continuous(breaks = c(0.15, 0.5, 0.85), labels = c("Single recording", "Multiple recordings\nin season", "Multiple recordings\nbetween years")) +
   scale_y_continuous(breaks = c(0.15, 0.5, 0.85), labels = c("Single location", "Multiple locations\nin population", "Multiple locations\nin meta-population")) +
   #  geom_text(aes(x=-0.35, y=1, label = c("B)")), size=10) +
