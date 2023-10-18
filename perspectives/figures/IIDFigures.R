@@ -27,10 +27,10 @@ method <- expand.grid(Recording = c(0, 0.5),
 
 plot.method <- ggplot(method) +
   geom_raster(aes(x=Recording, y=Classification, fill = Score)) +
-  scale_fill_viridis_c(name="Difficulty of\nindividual\nidentification", breaks=c(0, 1, 2), labels=c("Low", "Medium", "High")) +
+  scale_fill_viridis_c(name="Difficulty of acoustic      \nindividual identification     ", breaks=c(0, 1), labels=c("Easy", "Hard")) +
   coord_cartesian(xlim = c(-0.25, 0.75), ylim=c(-0.25, 0.75), clip = 'off') +
   scale_x_continuous(breaks = c(0, 0.5), labels = c("Targeted", "Passive")) +
-  scale_y_continuous(breaks = c(0, 0.5), labels = c("Closed set", "Open set")) +
+  scale_y_continuous(breaks = c(0, 0.5), labels = c("Closed-set", "Open-set")) +
   my.theme +
   theme(legend.text = element_text(size=10),
         axis.text.y = element_text(angle = 90, hjust = 0.5, size = 10, margin = margin(0,-12,0,0)),
@@ -39,13 +39,12 @@ plot.method <- ggplot(method) +
         axis.line.y = element_blank(),
         axis.ticks = element_blank(),
         plot.title = element_text(size=14, face="bold"),
-        legend.position = "none") +
+        legend.position = "bottom") +
   xlab("Recording method") +
-  ylab("Individual classification method") +
-  ggtitle("A. Method attributes")
+  ylab("Classification method")
 plot.method
 
-#ggsave(plot.method, filename=file.path(root, "Figures", "Figure1AMethodPlot.jpeg"), width=7, height=5.85, units="in", dpi = 300, device="jpeg")
+ggsave(plot.method, filename=file.path(root, "Figures", "MethodPlot.jpeg"), width=6, height=6.75, units="in", dpi = 300, device="jpeg")
 
 #1B. Extent attributes----
 
@@ -55,7 +54,7 @@ base <- expand.grid(Time = seq(0, 1, 0.01),
 
 plot.base <- ggplot() +
   geom_raster(data=base, aes(x=Time, y=Space, fill = Score)) +
-  scale_fill_viridis_c(name="Difficulty of\nindividual\nidentification", breaks=c(0, 1, 2), labels=c("Low", "Medium", "High")) +
+  scale_fill_viridis_c(name="Difficulty of acoustic      \nindividual identification     ", breaks=c(0, 1), labels=c("Easy", "Hard")) +
   scale_x_continuous(breaks = c(0.15, 0.5, 0.85), labels = c("Single recording", "Multiple recordings\nin season", "Multiple recordings\nbetween years")) +
   scale_y_continuous(breaks = c(0.15, 0.5, 0.85), labels = c("Single location", "Multiple locations\nin population", "Multiple locations\nin meta-population")) +
   #  geom_text(aes(x=-0.35, y=1, label = c("B)")), size=10) +
@@ -71,137 +70,7 @@ plot.base <- ggplot() +
         axis.line.x = element_blank(),
         axis.line.y = element_blank(),
         plot.title = element_text(size=14, face="bold"),
-        legend.position = "") +
-  ggtitle("B. Extent attributes")
+        legend.position = "bottom")
 plot.base
 
-ggsave(plot.base, width = 7, height = 5.85, units="in", filename=file.path(root, "Figures", "Figure1BBasePlot.jpeg"), dpi=300)
-
-#Figure 1A & 1B together----
-plot.legend <- ggplot() +
-  geom_raster(data=base, aes(x=Time, y=Space, fill = Score)) +
-  scale_fill_viridis_c(name="Difficulty of\nindividual identification", breaks=c(0, 1, 2), labels=c("Low", "Medium", "High")) +
-  my.theme +
-  theme(legend.text = element_text(size=10),
-        legend.position = "bottom")
-
-leg <- cowplot::get_legend(plot.legend)
-
-ggsave(grid.arrange(plot.base, plot.method, leg,
-                    widths = c(5,6),
-                    heights = c(4,0.4),
-                    layout_matrix = rbind(c(2,1),
-                                          c(3,1))),
-       filename=file.path(root, "Figures", "Figure1StudyDesignAttributes.jpeg"), width = 10, height = 5.4)
-
-#Figure 2 - Existing approaches----
-
-use.mods <- read.csv(file.path(root, "Results", "AIIDPapersCleaned.csv"))
-
-approach <- use.mods %>% 
-  group_by(RecordingMethod, ClassificationMethod, Application) %>% 
-  summarize(n=n()) %>% 
-  ungroup() %>% 
-  dplyr::filter(!is.na(RecordingMethod),
-                !is.na(Application),
-                !is.na(ClassificationMethod),
-                ClassificationMethod!="Difference test") %>% 
-  pivot_wider(names_from="Application", values_from="n", values_fill=0) %>% 
-  pivot_longer(AIID:State, values_to="n", names_to="Application")
-  
-plot.passiveclosed <- ggplot(approach %>% 
-                  dplyr::filter(RecordingMethod=="Passive",
-                                ClassificationMethod=="Closed set")) +
-  geom_col(aes(x=n, y=Application, fill=Application)) +
-  scale_fill_grey() +
-  my.theme +
-  coord_flip() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        strip.background = element_blank(),
-        strip.text = element_blank(),
-        plot.background = element_rect(fill=rgb(1,1,1, alpha=0.3), colour=NA),
-        panel.background = element_rect(fill=NA),
-        legend.position="none")
-
-ggsave(plot.passiveclosed, filename=file.path(root, "Figures", "Figure3StudyDesignResults_PassiveClosed.tiff"), device="tiff", width=4, height=4)
-
-plot.passiveopen <- ggplot(approach %>% 
-                  dplyr::filter(RecordingMethod=="Passive",
-                                ClassificationMethod=="Open set")) +
-  geom_col(aes(x=n, y=Application, fill=Application)) +
-  scale_fill_grey() +
-  my.theme +
-  coord_flip() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        strip.background = element_blank(),
-        strip.text = element_blank(),
-        plot.background = element_rect(fill=rgb(1,1,1, alpha=0.3), colour=NA),
-        panel.background = element_rect(fill=NA),
-        legend.position="none")
-
-ggsave(plot.passiveopen, filename=file.path(root, "Figures", "Figure3StudyDesignResults_PassiveOpen.tiff"), device="tiff", width=4, height=4)
-
-plot.targetedclosed <- ggplot(approach %>% 
-                              dplyr::filter(RecordingMethod=="Targeted",
-                                            ClassificationMethod=="Closed set")) +
-  geom_col(aes(x=n, y=Application, fill=Application)) +
-  scale_fill_grey() +
-  my.theme +
-  coord_flip() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        strip.background = element_blank(),
-        strip.text = element_blank(),
-        plot.background = element_rect(fill=rgb(1,1,1, alpha=0.3), colour=NA),
-        panel.background = element_rect(fill=NA),
-        legend.position="none")
-
-ggsave(plot.targetedclosed, filename=file.path(root, "Figures", "Figure3StudyDesignResults_TargetedClosed.tiff"), device="tiff", width=4, height=4)
-
-plot.targetedopen <- ggplot(approach %>% 
-                                dplyr::filter(RecordingMethod=="Targeted",
-                                              ClassificationMethod=="Open set")) +
-  geom_col(aes(x=n, y=Application, fill=Application)) +
-  scale_fill_grey() +
-  my.theme +
-  coord_flip() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        strip.background = element_blank(),
-        strip.text = element_blank(),
-        plot.background = element_rect(fill=rgb(1,1,1, alpha=0.3), colour=NA),
-        panel.background = element_rect(fill=NA),
-        legend.position="none")
-
-ggsave(plot.targetedopen, filename=file.path(root, "Figures", "Figure3StudyDesignResults_TargetedOpen.tiff"), width=4, height=4, device="tiff")
-
-
-plot.legend <- plot.targetedclosed <- ggplot(approach %>% 
-                                               dplyr::filter(Recording.Method=="Targeted",
-                                                             Classification.Method=="Closed set")) +
-  geom_col(aes(x=n, y=Application, fill=Application)) +
-  scale_fill_grey() +
-  my.theme +
-  coord_flip() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        strip.background = element_blank(),
-        strip.text = element_blank(),
-        legend.position="right")
-
-ggsave(plot.legend, filename=file.path(root, "Figures", "Figure3StudyDesignResults_Legend.jpeg"), width=4, height=4)
-
-#Figure 3 - Temporal effects-----
-
+ggsave(plot.base, width = 6.9, height = 7.4, units="in", filename=file.path(root, "Figures", "ExtentPlot.jpeg"), dpi=300)
