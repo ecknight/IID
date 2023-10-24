@@ -93,8 +93,27 @@ dat.dfa <- dat.mods %>%
 ggplot(dat.dfa) +
   geom_smooth(aes(x=Year, y=dfa))
 
-lm1 <- lm(dfa ~ poly(Year,2), data=dat.dfa)
+lm1 <- glm(dfa ~ Year, data=dat.dfa, family="binomial")
+lm2 <- glm(dfa ~ poly(Year,2), data=dat.dfa, family="binomial")
+AIC(lm1, lm2)
 summary(lm1)
+summary(lm2)
+
+pred2 <- data.frame(predict(lm2, type="response", se.fit=TRUE)) %>% 
+  cbind(dat.dfa) %>% 
+  mutate(fit.low = fit-1.96*se.fit,
+         fit.high = fit+1.96*se.fit) %>% 
+  dplyr::select(fit, fit.low, fit.high, Year) %>% 
+  unique()
+
+ggplot(pred2) +
+  geom_line(aes(x=Year, y=fit)) +
+  geom_ribbon(aes(x=Year, ymin=fit-1.96*se.fit, ymax=fit+1.96*se.fit), alpha = 0.5) +
+  ylim(c(0,1.1))
+
+ggplot(dat.dfa) +
+  geom_smooth(aes(x=Year, y=dfa), method="lm") +
+  ylim(c(0,1.1))
 
 year.dfa <- dat.dfa %>% 
   group_by(Year) %>% 
@@ -116,7 +135,7 @@ dat.deep <- dat.mods %>%
 ggplot(dat.deep) +
   geom_smooth(aes(x=Year, y=deep))
 
-lm1 <- lm(deep ~ Year, data=dat.deep)
+lm1 <- glm(deep ~ Year, data=dat.deep, family="binomial")
 summary(lm1)
 
 year.deep <- dat.deep %>% 
