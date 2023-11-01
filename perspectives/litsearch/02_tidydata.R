@@ -33,8 +33,6 @@ todo <- raw %>%
 nrow(todo)
 table(todo$todo, todo$observer)
 
-#TO DO: TIDY THIS UP####
-
 #3. Look at relevant proportion----
 table(raw$Relevant)
 
@@ -126,7 +124,8 @@ use.mods <- use.mods.long %>%
                            is.na(Model3) ~ paste(Model1, Model2, sep=", "),
                            is.na(Model4) ~ paste(Model1, Model2, Model3, sep=", "),
                            !is.na(Model4) ~ paste(Model1, Model2, Model3, Model4))) %>% 
-  dplyr::select(-Model1, -Model2, -Model3, -Model4)
+  dplyr::select(-Model1, -Model2, -Model3, -Model4) %>% 
+  arrange(Year, Author)
 
 #D. SAMPLE SIZE####
 
