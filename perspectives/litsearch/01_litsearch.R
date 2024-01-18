@@ -107,7 +107,8 @@ my_search
 retrieved_articles <- import_results(directory = file.path(root, "fullsearch"))
 
 #11. Remove duplicates----
-retrieved_articles <- remove_duplicates(retrieved_articles, field="title", method="string_osa")
+retrieved_articles <- remove_duplicates(retrieved_articles, field="title", method="string_osa") %>% 
+  arrange(year, author, journal, title)
 
 #12. Choose some gold standard references----
 gold_standard <- read.csv(file.path(root, "goldstandard.csv"))$Title
@@ -140,20 +141,26 @@ out <- retrieved_articles %>%
 table(out$observer)
 
 #15. Save!----
-write.csv(out, file.path(root, "Literature Review.csv"), row.names = FALSE)
+#write.csv(out, file.path(root, "Literature Review.csv"), row.names = FALSE)
 
+#16. Update for revisions----
+retrieved_articles_rev <- import_results(directory = file.path(root, "fullsearch_revisions"))
 
+#17. Remove duplicates----
+retrieved_articles_rev <- remove_duplicates(retrieved_articles_rev, field="title", method="string_osa") %>% 
+  dplyr::select(all_of(colnames(retrieved_articles))) %>% 
+  arrange(year, author, journal, title)
 
+#18. Get new articles only----
+retrieved_articles_new <- anti_join(retrieved_articles_rev, retrieved_articles,
+                                    by=c("title")) %>% 
+  dplyr::filter(year >= max(retrieved_articles$year, na.rm=TRUE))
 
+#19. Format for saving----
+out_new <- retrieved_articles_new %>% 
+  dplyr::select(author, year, title, journal, volume, number, pages, doi, abstract) %>% 
+  mutate(observerid = sample.int(4, size=max(row_number()), replace=TRUE)) %>% 
+  left_join(observer)
 
-
-
-
-
-
-
-
-
-
-
-
+#20. Save!----
+write.csv(out_new, file.path(root, "Literature Review - Revisions Update.csv"), row.names = FALSE)
