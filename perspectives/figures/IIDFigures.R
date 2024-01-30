@@ -39,12 +39,11 @@ plot.method <- ggplot(method) +
         axis.line.y = element_blank(),
         axis.ticks = element_blank(),
         plot.title = element_text(size=14, face="bold"),
-        legend.position = "bottom") +
+        legend.position = "") +
   xlab("Recording method") +
-  ylab("Classification method")
+  ylab("Classification method") + 
+  ggtitle("Study design attributes")
 plot.method
-
-ggsave(plot.method, filename=file.path(root, "Figures", "MethodPlot.jpeg"), width=6, height=6.75, units="in", dpi = 300, device="jpeg")
 
 #1B. Extent attributes----
 
@@ -54,7 +53,7 @@ base <- expand.grid(Time = seq(0, 1, 0.01),
 
 plot.base <- ggplot() +
   geom_raster(data=base, aes(x=Time, y=Space, fill = Score)) +
-  scale_fill_viridis_c(name="Difficulty of acoustic      \nindividual identification     ", breaks=c(0, 2), labels=c("Easy", "Hard")) +
+  scale_fill_viridis_c(name="Difficulty of\nindividual\nidentification", breaks=c(0, 1, 2), labels=c("Low", "Medium", "High")) +
   scale_x_continuous(breaks = c(0.15, 0.5, 0.85), labels = c("Single recording", "Multiple recordings\nin season", "Multiple recordings\nbetween years")) +
   scale_y_continuous(breaks = c(0.15, 0.5, 0.85), labels = c("Single location", "Multiple locations\nin population", "Multiple locations\nin meta-population")) +
   #  geom_text(aes(x=-0.35, y=1, label = c("B)")), size=10) +
@@ -70,7 +69,24 @@ plot.base <- ggplot() +
         axis.line.x = element_blank(),
         axis.line.y = element_blank(),
         plot.title = element_text(size=14, face="bold"),
-        legend.position = "bottom")
+        legend.position = "") +
+  ggtitle("Extent attributes")
 plot.base
 
-ggsave(plot.base, width = 6.9, height = 7.4, units="in", filename=file.path(root, "Figures", "ExtentPlot.jpeg"), dpi=300)
+
+#Figure 1A & 1B together----
+plot.legend <- ggplot() +
+  geom_raster(data=base, aes(x=Time, y=Space, fill = Score)) +
+  scale_fill_viridis_c(name="Difficulty of\nindividual identification", breaks=c(0, 1, 2), labels=c("Low", "Medium", "High")) +
+  my.theme +
+  theme(legend.text = element_text(size=10),
+        legend.position = "bottom")
+
+leg <- cowplot::get_legend(plot.legend)
+
+ggsave(grid.arrange(plot.base, plot.method, leg,
+                    widths = c(5,6),
+                    heights = c(4,0.4),
+                    layout_matrix = rbind(c(2,1),
+                                          c(3,1))),
+       filename=file.path(root, "Figures", "FrameworkPlot.jpeg"), width = 10, height = 5.4, units="in", dpi = 300, device = "jpeg")
