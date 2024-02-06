@@ -13,7 +13,7 @@ root <- "G:/.shortcut-targets-by-id/14H5BXdBP8k2jv4jgUjO5QTqHvOmxMSBn/Individual
 
 #1. Read in raw table----
 raw <- read_sheet(ss="1J9SN-VR6WF3GVycpxd5RY6gXN3gIvmo7AJutYRDOJcU",
-                  col_types="cncccccnccccccccccccccccccc") %>% 
+                  col_types="cncccccncccccccccccccccccccc") %>% 
   data.frame()
 2
 # dat <- raw %>% 

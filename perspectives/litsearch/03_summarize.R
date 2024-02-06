@@ -50,6 +50,12 @@ dat %>%
   ungroup() %>% 
   mutate(percent = n/total)
 
+dat %>% 
+  dplyr::filter(DifferenceFound=="No") %>% 
+  group_by(Taxa) %>% 
+  summarize(n=n()) %>% 
+  ungroup()
+
 #3. Number of classificaiton studies----
 dat %>% 
   dplyr::filter(ClassificationMethod!="Difference test") %>% 
@@ -108,7 +114,7 @@ pred2 <- data.frame(predict(lm2, type="response", se.fit=TRUE)) %>%
 
 ggplot(pred2) +
   geom_line(aes(x=Year, y=fit)) +
-  geom_ribbon(aes(x=Year, ymin=fit-1.96*se.fit, ymax=fit+1.96*se.fit), alpha = 0.5) +
+  geom_ribbon(aes(x=Year, ymin=fit.low, ymax=fit.high), alpha = 0.5) +
   ylim(c(0,1.1))
 
 ggplot(dat.dfa) +
@@ -136,7 +142,10 @@ ggplot(dat.deep) +
   geom_smooth(aes(x=Year, y=deep))
 
 lm1 <- glm(deep ~ Year, data=dat.deep, family="binomial")
-summary(lm1)
+lm2 <- glm(deep ~ poly(Year, 2), data=dat.deep, family="binomial")
+lm3 <- glm(deep ~ poly(Year, 3), data=dat.deep, family="binomial")
+AIC(lm1, lm2, lm3)
+summary(lm3)
 
 year.deep <- dat.deep %>% 
   group_by(Year) %>% 
@@ -147,6 +156,17 @@ year.deep <- dat.deep %>%
 
 ggplot(year.deep) +
   geom_point(aes(x=Year, y=ratio))
+
+pred3 <- data.frame(predict(lm3, type="response", se.fit=TRUE)) %>% 
+  cbind(dat.deep) %>% 
+  mutate(fit.low = fit-1.96*se.fit,
+         fit.high = fit+1.96*se.fit) %>% 
+  dplyr::select(fit, fit.low, fit.high, Year) %>% 
+  unique()
+
+ggplot(pred3) +
+  geom_line(aes(x=Year, y=fit)) +
+  geom_ribbon(aes(x=Year, ymin=fit.low, ymax=fit.high), alpha = 0.5)
 
 #8. Model groups in open set----
 dat.mods %>% 
@@ -178,8 +198,7 @@ dat %>%
 #11. Non AIID per se applications----
 dat %>% 
   dplyr::filter(ClassificationMethod!="Difference test", Application!="AIID") %>% 
-  mutate(total=n(),
-         Application=ifelse(Application %in% c("Census", "Density"), "PopSize", Application)) %>%  
+  mutate(total=n()) %>%  
   group_by(Application, total) %>% 
   summarize(n=n()) %>% 
   ungroup() %>% 
@@ -194,7 +213,6 @@ dat %>%
   summarize(n=n()) %>% 
   ungroup() %>% 
   mutate(percent = n/total)
-
 
 #C. CHALLENGES####
 
