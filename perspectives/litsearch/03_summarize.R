@@ -5,6 +5,7 @@
 library(tidyverse)
 library(googlesheets4)
 library(googledrive)
+library(MuMIn)
 
 #2. Files location----
 root <- "G:/.shortcut-targets-by-id/14H5BXdBP8k2jv4jgUjO5QTqHvOmxMSBn/IndividualID/PerspectivesPaper/"
@@ -198,7 +199,8 @@ dat %>%
 #11. Non AIID per se applications----
 dat %>% 
   dplyr::filter(ClassificationMethod!="Difference test", Application!="AIID") %>% 
-  mutate(total=n()) %>%  
+  mutate(total=n(),
+         Application=ifelse(Application %in% c("Census", "Density"), "PopSize", Application)) %>%  
   group_by(Application, total) %>% 
   summarize(n=n()) %>% 
   ungroup() %>% 
@@ -213,6 +215,25 @@ dat %>%
   summarize(n=n()) %>% 
   ungroup() %>% 
   mutate(percent = n/total)
+
+#13. Probably of application relative to recording and classification method----
+dat.app <- dat %>% 
+  dplyr::filter(ClassificationMethod!="Difference test") %>% 
+  mutate(app = ifelse(Application!="AIID", 1, 0),
+         behav = ifelse(Application%in%c("AIID", "Behaviour"), 0, 1)) %>% 
+  dplyr::filter(!is.na(app),
+                !is.na(RecordingMethod),
+                !is.na(ClassificationMethod)) %>% 
+  mutate(RecordingMethod = factor(RecordingMethod, levels=c("Targeted", "Passive")),
+         ClassificationMethod = factor(ClassificationMethod, levels=c("Closed set", "Open set")))
+
+m1 <- glm(app ~ RecordingMethod + ClassificationMethod, family="binomial", data=dat.app, na.action="na.fail")
+summary(m1)
+dredge(m1)
+
+m2 <- glm(behav ~ RecordingMethod + ClassificationMethod, family="binomial", data=dat.app, na.action="na.fail")
+summary(m2)
+dredge(m2)
 
 #C. CHALLENGES####
 
